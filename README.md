@@ -2,7 +2,10 @@
 
 This plugin provides a simple cli script that allows to trigger course archives
 manually on the command line of the Moodle server.
-If you want to automate course archives then the plugin
+There is also an non interactive mode for automatisation.
+
+The plugin only works with category and course ids. If you need a more granular
+distingtion what to archive, the plugin
 [Course Life Cycle (moodle-tool_lifecycle)](https://github.com/learnweb/moodle-tool_lifecycle)
 is recommended to use.
 
@@ -25,7 +28,9 @@ php public/admin/tool/course_archiver/cli/archive.php -c=<CATEGORYID> -d -r
 ```
 
 Before the action is executed, a confirmation dialogue is shown that lists
-all affected courses.
+all affected courses. The confirmation dialogue can be skipped with the
+command line argument `--non-interactive`. This is useful for automatec
+archives via cron.
 
 ## Options
 
@@ -37,13 +42,7 @@ The folling options can be set:
 * `-r` or `--recursive` when set, traverse the sub categories of a category,
   default is no traverse into subcategories. This has no effect when a course ID
   is used.
+* `-q` or `--quiet` no output at the console.
 * `-t` or `--target`  to define another directory where the course backup files
   are written to. Default is `moodle-data/course_archiver/`.
-
-## Assets
-
-In the `assets` folder is a sample shell script, that may collect the created
-course backups on the Moodle server and transfers them to a backup location
-and then deleting the course backups on the Moodle server to save space. So,
-the `course_archiver.sh` is not really part of this plugin but can be used to
-store the backups in a safe space.
+* `--non-interactive` do not ask for confirmation at the console.

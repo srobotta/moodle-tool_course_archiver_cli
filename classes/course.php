@@ -16,6 +16,8 @@
 
 namespace tool_course_archiver;
 
+use tool_brickfield\local\areas\mod_choice\option;
+
 /**
  * Class for archive a course.
  *
@@ -25,11 +27,9 @@ namespace tool_course_archiver;
  */
 class course {
     /** @var int The course ID. */
-    public int $id;
-    /** @var bool Whether to delete the course after backup. */
-    public bool $delete;
-    /** @var string The path to store the backup files. */
-    public string $archivepath;
+    protected int $id;
+    /** @var options The options for the course archiver. */
+    protected options $options;
     /** @var string|null The shortname of the course, used for confirmation message. */
     protected ?string $shortname = null;
 
@@ -37,55 +37,54 @@ class course {
      * Constructor for the course archiver.
      *
      * @param int $id The course ID.
-     * @param string $archivepath The path to store the backup files.
-     * @param bool $delete Whether to delete the course after backup.
+     * @param options $options The options for the course archiver.
      */
-    public function __construct(int $id, string $archivepath, bool $delete) {
+    public function __construct(int $id, options $options) {
         $this->id = $id;
-        $this->archivepath = $archivepath;
-        $this->delete = $delete;
+        $this->options = $options;
     }
 
     /**
      * Archive the course by backing it up and optionally deleting it.
      * If not confirmed yet, it will print out a confirmation message with the course name and ID.
      *
-     * @param bool $confirm Whether to ask for confirmation before archiving.
      * @return void
      */
-    public function archive(bool $confirm = false): void {
-        if ($confirm) {
-            echo get_string('backupcourse', 'tool_course_archiver', [
-                'name' => $this->get_course_shortname(),
-                'id' => $this->id,
-                'path' => $this->archivepath
-            ]) . PHP_EOL;
-            $this->exec(
-                'backup.php',
-                "--courseid={$this->id} --destination={$this->archivepath}",
-                'backupdfailed'
-            );
-            if ($this->delete) {
-                echo get_string('deletecourse', 'tool_course_archiver', [
-                    'name' => $this->get_course_shortname(),
-                    'id' => $this->id,
-                    'path' => $this->archivepath
-                ]) . PHP_EOL;
-                $this->exec(
-                    'delete_course.php',
-                    "--courseid={$this->id} --disablerecyclebin --non-interactive",
-                    'deletefailed'
-                );
-            }
+    public function archive(): void {
+        if (!$this->options->getNonInteractive() && !$this->getConfirmation()) {
             return;
         }
-        echo $this->get_confirmation() . PHP_EOL;
+        if (!$this->options->getQuiet()) {
+            echo get_string('backupcourse', 'tool_course_archiver', [
+                'name' => $this->getCourseShortname(),
+                'id' => $this->id,
+                'path' => $this->options->getArchivePath()
+            ]) . PHP_EOL;
+        }
+        $this->exec(
+            'backup.php',
+            "--courseid={$this->id} --destination={$this->options->getArchivePath()}",
+            'backupdfailed'
+        );
+        if ($this->options->getDelete()) {
+            if (!$this->options->getQuiet()) {
+                echo get_string('deletecourse', 'tool_course_archiver', [
+                    'name' => $this->getCourseShortname(),
+                    'id' => $this->id,
+                ]) . PHP_EOL;
+            }
+            $this->exec(
+                'delete_course.php',
+                "--courseid={$this->id} --disablerecyclebin --non-interactive",
+                'deletefailed'
+            );
+        }
     }
 
     /**
      * Execute backup or delete command.
      * @param string $script
-     * @param string $artgs
+     * @param string $args
      * @param string $err
      */
     protected function exec(string $script, string $args, string $err): void {
@@ -97,6 +96,9 @@ class course {
             $script = str_replace('/', DIRECTORY_SEPARATOR, $script);
         }
         $cmd = escapeshellcmd("$php $script $args");
+        if ($this->options->getQuiet()) {
+            $cmd .= ' > /dev/null 2>&1';
+        }
 
         exec($cmd, $output, $returnvar);
         if ($returnvar !== 0) {
@@ -110,7 +112,7 @@ class course {
      * @return string The shortname of the course.
      * @throws \moodle_exception If the course is not found.
      */
-    protected function get_course_shortname(): string {
+    protected function getCourseShortname(): string {
         global $DB;
         if ($this->shortname === null) {
             $this->shortname = $DB->get_field('course', 'shortname', ['id' => $this->id]);
@@ -122,18 +124,27 @@ class course {
     }   
 
     /**
-     * Get the confirmation message for archiving the course.
+     * Get the confirmation message for archiving the course, and ask for confirmation via CLI input.
      *
-     * @return string The confirmation message.
+     * @return bool Whether the user confirmed the archiving.
      */
-    public function get_confirmation(): string {
-        return get_string(
+    public function getConfirmation(): bool {
+        echo get_string(
             'confirmarchivecourse',
             'tool_course_archiver',
             [
-                'course' => $this->get_course_shortname(),
+                'course' => $this->getCourseShortname(),
                 'id' => $this->id
             ]
         );
+        echo PHP_EOL;
+        $yes = strtolower(substr(get_string('yes'), 0, 1));
+        $no = strtolower(substr(get_string('no'), 0, 1));
+        $input = cli_input(
+            get_string('confirmcontinue', 'tool_course_archiver') . ' (' . $yes . '/' . strtoupper($no) . ')',
+            $no,
+            [$yes, strtoupper($yes), $no, strtoupper($no)]
+        );
+        return (strtolower($input) === $yes);
     }
 }

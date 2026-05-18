@@ -25,15 +25,17 @@ namespace tool_course_archiver;
  */
 class category {
     /** @var int The category ID. */
-    public int $id;
-    /** @var bool Whether to delete the course after backup. */
-    public bool $delete;
-    /** @var string The path to store the backup files. */
-    public string $archivepath;
+    protected int $id;
+
     /** @var bool Whether to include courses in subcategories. */
-    public bool $recursive;
+    protected bool $recursive;
+
+    /** @var options The options for the category archiver. */
+    protected options $options;
+
     /** @var array The list of pending categories to process when loading course ids. */
     protected array $pending = [];
+
     /** @var array The list of courses to archive. */
     protected array $courses = [];
 
@@ -41,17 +43,15 @@ class category {
      * Constructor for the category archiver.
      *
      * @param int $id The category ID.
-     * @param string $archivepath The path to store the backup files.
-     * @param bool $delete Whether to delete the course after backup.
-     * @param bool $recursive Whether to include courses in subcategories.
+     * @param options $options The options for the category archiver.
+     * @param bool $recursive Whether to include courses in subcategories when a category is specified.
      */
-    public function __construct(int $id, string $archivepath, bool $delete, bool $recursive) {
+    public function __construct(int $id, options $options, bool $recursive) {
         $this->id = $id;
-        $this->archivepath = $archivepath;
-        $this->delete = $delete;
+        $this->options = $options;
         $this->recursive = $recursive;
         $this->pending[] = $id;
-        $this->load_courses();
+        $this->loadCourses();
     }
 
     /**
@@ -59,7 +59,7 @@ class category {
      *
      * @return void
      */
-    protected function load_courses(): void {
+    protected function loadCourses(): void {
         while (!empty($this->pending)) {
             $id = \array_shift($this->pending);
             $courses = \get_courses($id, 'c.id', 'c.id, c.shortname, c.fullname');
@@ -79,35 +79,43 @@ class category {
     }
 
     /**
-     * Archive the category and its courses.
-     * If not confirmed yet, it will print out a confirmation message with a list of courses.
+     * Archive the list of courses.
      *
-     * @param bool $confirm Whether to ask for confirmation before archiving.
      * @return void
      */
-    public function archive(bool $confirm = false): void {
-        if ($confirm) {
-            foreach (\array_keys($this->courses) as $courseid) {
-                $archiver = new course(id: $courseid, archivepath: $this->archivepath, delete: $this->delete);
-                $archiver->archive(confirm: true);
-            }
+    public function archive(): void {
+        if (!$this->options->getNonInteractive() && !$this->getConfirmation()) {
             return;
         }
-        echo $this->get_confirmation() . PHP_EOL;
+        $courseOptions = clone($this->options);
+        $courseOptions->setNonInteractive(true);
+        foreach (\array_keys($this->courses) as $courseid) {
+            $archiver = new course(id: $courseid, options: $courseOptions);
+            $archiver->archive();
+        }
     }
 
     /**
-     * Get the confirmation message for archiving the category.
+     * Get the confirmation message for archiving the category and its courses,
+     * and ask for confirmation via CLI input.
      *
-     * @return string The confirmation message.
+     * @return bool Whether the user confirmed the archiving.
      */
-    public function get_confirmation(): string {
+    public function getConfirmation(): bool {
         global $DB;
         $categoryname = $DB->get_record('course_categories', ['id' => $this->id], 'name')->name;
         $text = get_string('confirmarchivecategory', 'tool_course_archiver', $categoryname);
-        foreach ($this->courses as $coursename) {
-            $text .= "\n - " . $coursename;
+        foreach ($this->courses as $courseid => $coursename) {
+            $text .= "\n - {$coursename} (ID: {$courseid})";
         }
-        return $text;
+        echo $text . PHP_EOL;
+        $yes = strtolower(substr(get_string('yes'), 0, 1));
+        $no = strtolower(substr(get_string('no'), 0, 1));
+        $input = cli_input(
+            get_string('confirmcontinue', 'tool_course_archiver') . ' (' . $yes . '/' . strtoupper($no) . ')',
+            $no,
+            [$yes, strtoupper($yes), $no, strtoupper($no)]
+        );
+        return (strtolower($input) === $yes);
     }
 }

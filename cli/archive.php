@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use tool_brickfield\local\areas\mod_choice\option;
+
 define('CLI_SCRIPT', true);
 
 require(__DIR__ . '/../../../../config.php');
@@ -34,6 +36,8 @@ Options:
 -c, --category          Category ID to archive all courses inside that category.
 -d, --delete            Whether to delete the course after backup, default: false.
 -h, --help              Print out this help message.
+--non-interactive       Suppress all interactive prompts, implies --quiet.
+-q, --quiet             Suppress confirmation for non interactive mode.
 -r, --recursive         Whether to include courses in subcategories when a category is specified, default: false.
 -t, --target            Target directory to store the backup files, default: $CFG->dataroot/course_archiver
 -x, --course            Archive a specific course by its ID.
@@ -50,10 +54,6 @@ Export all course within a category and its subcategories, and delete the course
 
 EOF;
 
-$target = "$CFG->dataroot/course_archiver/";
-$delete = false;
-$recursive = false;
-
 // Now get cli options.
 list($options, $unrecognized) = cli_get_params(
     [
@@ -63,11 +63,14 @@ list($options, $unrecognized) = cli_get_params(
         'recursive' => false,
         'category' => 0,
         'course' => 0,
+        'quiet' => false,
+        'non-interactive' => false,
     ],
     [
         'h' => 'help',
         'c' => 'category',
         'd' => 'delete',
+        'q' => 'quiet',
         'r' => 'recursive',
         't' => 'target',
         'x' => 'course'
@@ -82,13 +85,15 @@ if ($unrecognized) {
 if ($options['help']) {
     cli_error($usage, 0);
 }
+
+$optionsObj = new \tool_course_archiver\options();
 // Target dir set by option or default.
 if ($options['target']) {
-    $target = rtrim($options['target'], '/') . '/';
+    $optionsObj->setArchivePath(rtrim($options['target'], '/') . '/');
 }
 // Ensure target directory exists.
-if (!check_dir_exists($target)) {
-    cli_error(get_string('targetnotfound', 'tool_course_archiver', ['target' => $target]));
+if (!check_dir_exists($optionsObj->getArchivePath())) {
+    cli_error(get_string('targetnotfound', 'tool_course_archiver', ['target' => $optionsObj->getArchivePath()]));
 }
 
 if (empty($options['category']) && empty($options['course'])) {
@@ -97,41 +102,28 @@ if (empty($options['category']) && empty($options['course'])) {
 if (!empty($options['category']) && !empty($options['course'])) {
     cli_error(get_string('onlycategoryorcourse', 'tool_course_archiver'));
 }
-
+// Other options about delete, interactive and output.
 if ($options['delete']) {
-    $delete = true;
+    $optionsObj->setDelete(true);
 }
-if ($options['recursive']) {
-    $recursive = true;
+if ($options['non-interactive']) {
+    $optionsObj->setNonInteractive(true);
+}
+if ($options['quiet']) {
+    $optionsObj->setQuiet(true);
 }
 
 if ($options['category']) {
     $archiver = new \tool_course_archiver\category(
         id: (int)$options['category'],
-        archivepath: $target,
-        delete: $delete,
-        recursive: $recursive
+        options: $optionsObj,
+        recursive: $options['recursive']
     );
 } else {
     $archiver = new \tool_course_archiver\course(
         id: (int)$options['course'],
-        archivepath: $target,
-        delete: $delete
+        options: $optionsObj
     );
 }
 
 $archiver->archive();
-echo PHP_EOL;
-// Ask for confirmation via cli input.
-$yes = strtolower(substr(get_string('yes'), 0, 1));
-$no = strtolower(substr(get_string('no'), 0, 1));
-$input = cli_input(
-    get_string('confirmcontinue', 'tool_course_archiver') . ' (' . $yes . '/' . strtoupper($no) . ')',
-    $no,
-    [$yes, strtoupper($yes), $no, strtoupper($no)]
-);
-if (strtolower($input) !== $yes) {
-    exit(0);
-}
-// Continue with archiving after confirmation.
-$archiver->archive(confirm: true);
