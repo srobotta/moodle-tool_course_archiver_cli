@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_course_archiver;
+namespace tool_course_archiver_cli;
 
 /**
- * Class that mocks the exec call of the tool_course_archiver\course class.
+ * Class that mocks the exec call of the tool_course_archiver_cli\course class.
  */
 class testable_course extends course {
     /** @var array<int, array{0:string,1:string,2:string}> */
@@ -26,7 +26,7 @@ class testable_course extends course {
     /**
      * Overwrite the exec function that actually returns the cli call to the
      * course backup and delete script.
-     * 
+     *
      * @param string $script
      * @param string $args
      * @param string $err

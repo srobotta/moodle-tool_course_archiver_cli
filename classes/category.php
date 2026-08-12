@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_course_archiver;
+namespace tool_course_archiver_cli;
 
 /**
  * Class for archive all courses within a category.
  *
- * @package     tool_course_archiver
+ * @package     tool_course_archiver_cli
  * @copyright   2026 Stephan Robotta <stephan.robotta@bfh.ch>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -104,7 +104,7 @@ class category {
     public function getConfirmation(): bool {
         global $DB;
         $categoryname = $DB->get_record('course_categories', ['id' => $this->id], 'name')->name;
-        $text = get_string('confirmarchivecategory', 'tool_course_archiver', $categoryname);
+        $text = get_string('confirmarchivecategory', 'tool_course_archiver_cli', $categoryname);
         foreach ($this->courses as $courseid => $coursename) {
             $text .= "\n - {$coursename} (ID: {$courseid})";
         }
@@ -112,7 +112,7 @@ class category {
         $yes = strtolower(substr(get_string('yes'), 0, 1));
         $no = strtolower(substr(get_string('no'), 0, 1));
         $input = cli_input(
-            get_string('confirmcontinue', 'tool_course_archiver') . ' (' . $yes . '/' . strtoupper($no) . ')',
+            get_string('confirmcontinue', 'tool_course_archiver_cli') . ' (' . $yes . '/' . strtoupper($no) . ')',
             $no,
             [$yes, strtoupper($yes), $no, strtoupper($no)]
         );

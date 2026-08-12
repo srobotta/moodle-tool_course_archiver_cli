@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_course_archiver\privacy;
+namespace tool_course_archiver_cli\privacy;
 
 /**
  * Course archiver this file handle privacy provider.
  *
- * @package          tool_course_archiver
+ * @package          tool_course_archiver_cli
  * @author           Stephan Robotta <stephan.robotta@bfh.ch>
  * @license          http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_course_archiver;
+namespace tool_course_archiver_cli;
 
 use tool_brickfield\local\areas\mod_choice\option;
 
 /**
  * Class for archive a course.
  *
- * @package     tool_course_archiver
+ * @package     tool_course_archiver_cli
  * @copyright   2026 Stephan Robotta <stephan.robotta@bfh.ch>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -55,7 +55,7 @@ class course {
             return;
         }
         if (!$this->options->getQuiet()) {
-            echo get_string('backupcourse', 'tool_course_archiver', [
+            echo get_string('backupcourse', 'tool_course_archiver_cli', [
                 'name' => $this->getCourseShortname(),
                 'id' => $this->id,
                 'path' => $this->options->getArchivePath()
@@ -68,7 +68,7 @@ class course {
         );
         if ($this->options->getDelete()) {
             if (!$this->options->getQuiet()) {
-                echo get_string('deletecourse', 'tool_course_archiver', [
+                echo get_string('deletecourse', 'tool_course_archiver_cli', [
                     'name' => $this->getCourseShortname(),
                     'id' => $this->id,
                 ]) . PHP_EOL;
@@ -102,7 +102,7 @@ class course {
 
         exec($cmd, $output, $returnvar);
         if ($returnvar !== 0) {
-            throw new \moodle_exception($err, 'tool_course_archiver', '', implode("\n", $output));
+            throw new \moodle_exception($err, 'tool_course_archiver_cli', '', implode("\n", $output));
         }
     }
 
@@ -117,11 +117,11 @@ class course {
         if ($this->shortname === null) {
             $this->shortname = $DB->get_field('course', 'shortname', ['id' => $this->id]);
             if (!$this->shortname) {
-                throw new \moodle_exception('coursenotfound', 'tool_course_archiver', '', $this->id);
+                throw new \moodle_exception('coursenotfound', 'tool_course_archiver_cli', '', $this->id);
             }
         }
         return $this->shortname;
-    }   
+    }
 
     /**
      * Get the confirmation message for archiving the course, and ask for confirmation via CLI input.
@@ -131,7 +131,7 @@ class course {
     public function getConfirmation(): bool {
         echo get_string(
             'confirmarchivecourse',
-            'tool_course_archiver',
+            'tool_course_archiver_cli',
             [
                 'course' => $this->getCourseShortname(),
                 'id' => $this->id
@@ -141,7 +141,7 @@ class course {
         $yes = strtolower(substr(get_string('yes'), 0, 1));
         $no = strtolower(substr(get_string('no'), 0, 1));
         $input = cli_input(
-            get_string('confirmcontinue', 'tool_course_archiver') . ' (' . $yes . '/' . strtoupper($no) . ')',
+            get_string('confirmcontinue', 'tool_course_archiver_cli') . ' (' . $yes . '/' . strtoupper($no) . ')',
             $no,
             [$yes, strtoupper($yes), $no, strtoupper($no)]
         );

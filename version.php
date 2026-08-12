@@ -17,7 +17,7 @@
 /**
  * Plugin version info
  *
- * @package    tool_course_archiver
+ * @package    tool_course_archiver_cli
  * @copyright  2026 Stephan Robotta <stephan.robotta@bfh.ch>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,9 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 
-$plugin->version   = 2026051700; // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2026081200; // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2025092600; // Requires this Moodle version.
-$plugin->component = 'tool_course_archiver'; // Full name of the plugin (used for diagnostics).
-$plugin->release = 'v5.2-r1';
+$plugin->component = 'tool_course_archiver_cli'; // Full name of the plugin (used for diagnostics).
+$plugin->release = 'v5.2-r2';
 $plugin->supported = [500, 502];
 $plugin->maturity = MATURITY_STABLE;

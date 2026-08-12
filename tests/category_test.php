@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_course_archiver;
+namespace tool_course_archiver_cli;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'testable_category.php';
 use core_course_category;
@@ -22,7 +22,7 @@ use core_course_category;
 /**
  * Unit tests for category archiver behaviour.
  *
- * @package    tool_course_archiver
+ * @package    tool_course_archiver_cli
  * @copyright  2026 Stephan Robotta <stephan.robotta@bfh.ch>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

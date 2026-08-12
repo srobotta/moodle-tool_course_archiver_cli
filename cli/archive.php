@@ -17,7 +17,7 @@
 /**
  * Export custom language strings to zip files.
  *
- * @package    tool_course_archiver
+ * @package    tool_course_archiver_cli
  * @copyright  2026 Stephan Robotta <stephan.robotta@bfh.ch>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -86,21 +86,21 @@ if ($options['help']) {
     cli_error($usage, 0);
 }
 
-$optionsObj = new \tool_course_archiver\options();
+$optionsObj = new \tool_course_archiver_cli\options();
 // Target dir set by option or default.
 if ($options['target']) {
     $optionsObj->setArchivePath(rtrim($options['target'], '/') . '/');
 }
 // Ensure target directory exists.
 if (!check_dir_exists($optionsObj->getArchivePath())) {
-    cli_error(get_string('targetnotfound', 'tool_course_archiver', ['target' => $optionsObj->getArchivePath()]));
+    cli_error(get_string('targetnotfound', 'tool_course_archiver_cli', ['target' => $optionsObj->getArchivePath()]));
 }
 
 if (empty($options['category']) && empty($options['course'])) {
-    cli_error(get_string('missingcategoryorcourse', 'tool_course_archiver'));
+    cli_error(get_string('missingcategoryorcourse', 'tool_course_archiver_cli'));
 }
 if (!empty($options['category']) && !empty($options['course'])) {
-    cli_error(get_string('onlycategoryorcourse', 'tool_course_archiver'));
+    cli_error(get_string('onlycategoryorcourse', 'tool_course_archiver_cli'));
 }
 // Other options about delete, interactive and output.
 if ($options['delete']) {
@@ -114,13 +114,13 @@ if ($options['quiet']) {
 }
 
 if ($options['category']) {
-    $archiver = new \tool_course_archiver\category(
+    $archiver = new \tool_course_archiver_cli\category(
         id: (int)$options['category'],
         options: $optionsObj,
         recursive: $options['recursive']
     );
 } else {
-    $archiver = new \tool_course_archiver\course(
+    $archiver = new \tool_course_archiver_cli\course(
         id: (int)$options['course'],
         options: $optionsObj
     );

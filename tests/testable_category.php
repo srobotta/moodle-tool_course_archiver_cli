@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_course_archiver;
+namespace tool_course_archiver_cli;
 
 /**
- * Class that mocks the course archiving in the tool_course_archiver\category class.
+ * Class that mocks the course archiving in the tool_course_archiver_cli\category class.
  */
 class testable_category extends category {
     /** @var array<int, int> Tracks which course IDs were archived. */

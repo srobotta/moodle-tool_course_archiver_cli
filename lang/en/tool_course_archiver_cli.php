@@ -18,7 +18,7 @@
 /**
  * Strings for the tool_installaddon component.
  *
- * @package     tool_course_archiver
+ * @package     tool_course_archiver_cli
  * @category    string
  * @copyright   2026 Stephan Robotta <stephan.robotta@bfh.ch>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
