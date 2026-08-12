@@ -1,4 +1,4 @@
-# Plugin Course Archiver
+# Plugin Course Archiver CLI
 
 This plugin provides a simple cli script that allows to trigger course archives
 manually on the command line of the Moodle server.
