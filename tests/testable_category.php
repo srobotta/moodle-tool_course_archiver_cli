@@ -18,6 +18,10 @@ namespace tool_course_archiver_cli;
 
 /**
  * Class that mocks the course archiving in the tool_course_archiver_cli\category class.
+ *
+ * @package    tool_course_archiver_cli
+ * @copyright  2026 Stephan Robotta <stephan.robotta@bfh.ch>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class testable_category extends category {
     /** @var array<int, int> Tracks which course IDs were archived. */
@@ -30,7 +34,7 @@ class testable_category extends category {
      * @return void
      */
     public function archive(): void {
-        if (!$this->options->getNonInteractive() && !$this->getConfirmation()) {
+        if (!$this->options->get_non_interactive() && !$this->get_confirmation()) {
             return;
         }
         foreach (\array_keys($this->courses) as $courseid) {
@@ -43,7 +47,7 @@ class testable_category extends category {
      *
      * @return array<int, int>
      */
-    public function getArchivedCourses(): array {
+    public function get_archived_courses(): array {
         return $this->archivedcourses;
     }
 
@@ -52,7 +56,7 @@ class testable_category extends category {
      *
      * @return array
      */
-    public function getCourses(): array {
+    public function get_courses(): array {
         return $this->courses;
     }
 }

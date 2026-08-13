@@ -31,7 +31,7 @@ class options {
     private string $target;
 
     /** @var bool Whether to suppress all interactive prompts. */
-    private bool $nonInteractive;
+    private bool $noninteractive;
 
     /** @var bool Whether to suppress confirmation for non-interactive mode. */
     private bool $quiet;
@@ -43,7 +43,7 @@ class options {
     public function __construct() {
         global $CFG;
         $this->delete = false;
-        $this->nonInteractive = false;
+        $this->noninteractive = false;
         $this->quiet = false;
         $this->target = $CFG->dataroot . '/course_archiver/';
     }
@@ -53,7 +53,7 @@ class options {
      *
      * @return bool
      */
-    public function getDelete(): bool {
+    public function get_delete(): bool {
         return $this->delete;
     }
 
@@ -62,7 +62,7 @@ class options {
      *
      * @return string
      */
-    public function getArchivePath(): string {
+    public function get_archive_path(): string {
         return $this->target;
     }
 
@@ -71,8 +71,8 @@ class options {
      *
      * @return bool
      */
-    public function getNonInteractive(): bool {
-        return $this->nonInteractive;
+    public function get_non_interactive(): bool {
+        return $this->noninteractive;
     }
 
     /**
@@ -80,7 +80,7 @@ class options {
      *
      * @return bool
      */
-    public function getQuiet(): bool {
+    public function get_quiet(): bool {
         return $this->quiet;
     }
 
@@ -90,7 +90,7 @@ class options {
      * @param bool $delete Whether to delete the course after backup.
      * @return self
      */
-    public function setDelete(bool $delete): self {
+    public function set_delete(bool $delete): self {
         $this->delete = $delete;
         return $this;
     }
@@ -98,11 +98,11 @@ class options {
     /**
      * Set the non-interactive option.
      *
-     * @param bool $nonInteractive Whether to suppress all interactive prompts.
+     * @param bool $noninteractive Whether to suppress all interactive prompts.
      * @return self
      */
-    public function setNonInteractive(bool $nonInteractive): self {
-        $this->nonInteractive = $nonInteractive;
+    public function set_non_interactive(bool $noninteractive): self {
+        $this->noninteractive = $noninteractive;
         return $this;
     }
 
@@ -112,7 +112,7 @@ class options {
      * @param bool $quiet Whether to suppress confirmation for non-interactive mode.
      * @return self
      */
-    public function setQuiet(bool $quiet): self {
+    public function set_quiet(bool $quiet): self {
         $this->quiet = $quiet;
         return $this;
     }
@@ -123,7 +123,7 @@ class options {
      * @param string $target The target directory to store the backup files.
      * @return self
      */
-    public function setArchivePath(string $target): self {
+    public function set_archive_path(string $target): self {
         $this->target = $target;
         return $this;
     }

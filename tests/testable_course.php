@@ -18,6 +18,10 @@ namespace tool_course_archiver_cli;
 
 /**
  * Class that mocks the exec call of the tool_course_archiver_cli\course class.
+ *
+ * @package    tool_course_archiver_cli
+ * @copyright  2026 Stephan Robotta <stephan.robotta@bfh.ch>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class testable_course extends course {
     /** @var array<int, array{0:string,1:string,2:string}> */
@@ -39,7 +43,7 @@ class testable_course extends course {
      * Get the "executed calls" as an array.
      * @return array<int, array{0:string,1:string,2:string}>
      */
-    public function getExecCalls(): array {
+    public function get_exec_calls(): array {
         return $this->execcalls;
     }
 }

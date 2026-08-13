@@ -16,7 +16,9 @@
 
 namespace tool_course_archiver_cli;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'testable_category.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . DIRECTORY_SEPARATOR . 'testable_category.php');
 use core_course_category;
 
 /**
@@ -27,10 +29,27 @@ use core_course_category;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class category_test extends \advanced_testcase {
+    /**
+     * Course category object to be archived.
+     * @var core_course_category
+     **/
     protected core_course_category $category;
+
+    /**
+     * Course 1 object in a category.
+     * @var \stdClass
+     **/
     protected \stdClass $course1;
+
+    /**
+     * Course 2 object in a category.
+     * @var \stdClass
+     **/
     protected \stdClass $course2;
 
+    /**
+     * Set up the test environment.
+     */
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
@@ -39,70 +58,82 @@ final class category_test extends \advanced_testcase {
         $this->category = $this->getDataGenerator()->create_category(['name' => 'Test Category']);
         $this->course1 = $this->getDataGenerator()->create_course([
             'category' => $this->category->id,
-            'shortname' => 'TEST_COURSE_1'
+            'shortname' => 'TEST_COURSE_1',
         ]);
         $this->course2 = $this->getDataGenerator()->create_course([
             'category' => $this->category->id,
-            'shortname' => 'TEST_COURSE_2'
+            'shortname' => 'TEST_COURSE_2',
         ]);
         $this->setAdminUser();
     }
 
+    /**
+     * Test archiving a category with non-interactive mode loads all courses in the category.
+     * @covers \tool_course_archiver_cli\category::archive
+     */
     public function test_archive_category_noninteractive_loads_all_courses(): void {
         $options = new options();
-        $options->setNonInteractive(true)->setQuiet(true);
+        $options->set_non_interactive(true)->set_quiet(true);
 
         $testablecategory = new testable_category($this->category->id, $options, false);
         $testablecategory->archive();
 
-        $archivedcourses = $testablecategory->getArchivedCourses();
+        $archivedcourses = $testablecategory->get_archived_courses();
         $this->assertCount(2, $archivedcourses);
         $this->assertContains((int)$this->course1->id, $archivedcourses);
         $this->assertContains((int)$this->course2->id, $archivedcourses);
     }
 
+    /**
+     * Test archiving a category with recursive mode loads courses in subcategories.
+     * @covers \tool_course_archiver_cli\category::archive
+     */
     public function test_archive_category_recursive_loads_subcategory_courses(): void {
         // Create a subcategory with a course.
         $subcategory = $this->getDataGenerator()->create_category([
             'parent' => $this->category->id,
-            'name' => 'Subcategory'
+            'name' => 'Subcategory',
         ]);
         $course3 = $this->getDataGenerator()->create_course([
             'category' => $subcategory->id,
-            'shortname' => 'TEST_COURSE_3'
+            'shortname' => 'TEST_COURSE_3',
         ]);
 
         $options = new options();
-        $options->setNonInteractive(true)->setQuiet(true);
+        $options->set_non_interactive(true)->set_quiet(true);
 
         $testablecategory = new testable_category($this->category->id, $options, true);
         $testablecategory->archive();
 
-        $archivedcourses = $testablecategory->getArchivedCourses();
+        $archivedcourses = $testablecategory->get_archived_courses();
         $this->assertCount(3, $archivedcourses);
         $this->assertContains((int)$this->course1->id, $archivedcourses);
         $this->assertContains((int)$this->course2->id, $archivedcourses);
         $this->assertContains((int)$course3->id, $archivedcourses);
     }
 
+    /**
+     * Test archiving a category with non-recursive mode ignores courses in subcategories.
+     * @covers \tool_course_archiver_cli\category::archive
+     */
     public function test_archive_category_non_recursive_ignores_subcategories(): void {
         // Create a subcategory with a course.
         $subcategory = $this->getDataGenerator()->create_category([
             'parent' => $this->category->id,
-            'name' => 'Subcategory'
+            'name' => 'Subcategory',
         ]);
         $this->getDataGenerator()->create_course([
             'category' => $subcategory->id,
-            'shortname' => 'TEST_COURSE_3'
+            'shortname' => 'TEST_COURSE_3',
         ]);
 
         $options = new options();
-        $options->setNonInteractive(true)->setQuiet(true);
+        $options->set_non_interactive(true)->set_quiet(true);
 
         $testablecategory = new testable_category($this->category->id, $options, false);
         $testablecategory->archive();
 
-        $archivedcourses = $testablecategory->getArchivedCourses();
+        $archivedcourses = $testablecategory->get_archived_courses();
         $this->assertCount(2, $archivedcourses);
         $this->assertContains((int)$this->course1->id, $archivedcourses);
         $this->assertContains((int)$this->course2->id, $archivedcourses);

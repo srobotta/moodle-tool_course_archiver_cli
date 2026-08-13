@@ -16,8 +16,6 @@
 
 namespace tool_course_archiver_cli;
 
-use tool_brickfield\local\areas\mod_choice\option;
-
 /**
  * Class for archive a course.
  *
@@ -51,25 +49,25 @@ class course {
      * @return void
      */
     public function archive(): void {
-        if (!$this->options->getNonInteractive() && !$this->getConfirmation()) {
+        if (!$this->options->get_non_interactive() && !$this->get_confirmation()) {
             return;
         }
-        if (!$this->options->getQuiet()) {
+        if (!$this->options->get_quiet()) {
             echo get_string('backupcourse', 'tool_course_archiver_cli', [
-                'name' => $this->getCourseShortname(),
+                'name' => $this->get_course_shortname(),
                 'id' => $this->id,
-                'path' => $this->options->getArchivePath()
+                'path' => $this->options->get_archive_path(),
             ]) . PHP_EOL;
         }
         $this->exec(
             'backup.php',
-            "--courseid={$this->id} --destination={$this->options->getArchivePath()}",
+            "--courseid={$this->id} --destination={$this->options->get_archive_path()}",
             'backupdfailed'
         );
-        if ($this->options->getDelete()) {
-            if (!$this->options->getQuiet()) {
+        if ($this->options->get_delete()) {
+            if (!$this->options->get_quiet()) {
                 echo get_string('deletecourse', 'tool_course_archiver_cli', [
-                    'name' => $this->getCourseShortname(),
+                    'name' => $this->get_course_shortname(),
                     'id' => $this->id,
                 ]) . PHP_EOL;
             }
@@ -96,7 +94,7 @@ class course {
             $script = str_replace('/', DIRECTORY_SEPARATOR, $script);
         }
         $cmd = escapeshellcmd("$php $script $args");
-        if ($this->options->getQuiet()) {
+        if ($this->options->get_quiet()) {
             $cmd .= ' > /dev/null 2>&1';
         }
 
@@ -112,7 +110,7 @@ class course {
      * @return string The shortname of the course.
      * @throws \moodle_exception If the course is not found.
      */
-    protected function getCourseShortname(): string {
+    protected function get_course_shortname(): string {
         global $DB;
         if ($this->shortname === null) {
             $this->shortname = $DB->get_field('course', 'shortname', ['id' => $this->id]);
@@ -128,13 +126,13 @@ class course {
      *
      * @return bool Whether the user confirmed the archiving.
      */
-    public function getConfirmation(): bool {
+    public function get_confirmation(): bool {
         echo get_string(
             'confirmarchivecourse',
             'tool_course_archiver_cli',
             [
-                'course' => $this->getCourseShortname(),
-                'id' => $this->id
+                'course' => $this->get_course_shortname(),
+                'id' => $this->id,
             ]
         );
         echo PHP_EOL;

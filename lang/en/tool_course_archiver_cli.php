@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -34,8 +33,8 @@ $string['confirmcontinue'] = 'Are you sure you want to continue?';
 $string['coursenotfound'] = 'Course with ID {$a} not found.';
 $string['deletecourse'] = 'Delete course {$a->name} (ID: {$a->id})';
 $string['deletefailed'] = 'Course deletion failed: {$a}';
-$string['targetnotfound'] = 'The target directory {$a} does not exist and could not be created.';
 $string['missingcategoryorcourse'] = 'You must specify either a category ID or a course ID to archive.';
 $string['onlycategoryorcourse'] = 'You cannot specify both a category ID and a course ID to archive. Please choose one of them.';
 $string['pluginname'] = 'CLI Course archiver';
 $string['privacy:metadata'] = 'The CLI Course archiver plugin does not store any personal data.';
+$string['targetnotfound'] = 'The target directory {$a} does not exist and could not be created.';

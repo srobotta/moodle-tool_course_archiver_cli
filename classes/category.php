@@ -51,7 +51,7 @@ class category {
         $this->options = $options;
         $this->recursive = $recursive;
         $this->pending[] = $id;
-        $this->loadCourses();
+        $this->load_courses();
     }
 
     /**
@@ -59,7 +59,7 @@ class category {
      *
      * @return void
      */
-    protected function loadCourses(): void {
+    protected function load_courses(): void {
         while (!empty($this->pending)) {
             $id = \array_shift($this->pending);
             $courses = \get_courses($id, 'c.id', 'c.id, c.shortname, c.fullname');
@@ -84,13 +84,13 @@ class category {
      * @return void
      */
     public function archive(): void {
-        if (!$this->options->getNonInteractive() && !$this->getConfirmation()) {
+        if (!$this->options->get_non_interactive() && !$this->get_confirmation()) {
             return;
         }
-        $courseOptions = clone($this->options);
-        $courseOptions->setNonInteractive(true);
+        $courseoptions = clone($this->options);
+        $courseoptions->set_non_interactive(true);
         foreach (\array_keys($this->courses) as $courseid) {
-            $archiver = new course(id: $courseid, options: $courseOptions);
+            $archiver = new course(id: $courseid, options: $courseoptions);
             $archiver->archive();
         }
     }
@@ -101,7 +101,7 @@ class category {
      *
      * @return bool Whether the user confirmed the archiving.
      */
-    public function getConfirmation(): bool {
+    public function get_confirmation(): bool {
         global $DB;
         $categoryname = $DB->get_record('course_categories', ['id' => $this->id], 'name')->name;
         $text = get_string('confirmarchivecategory', 'tool_course_archiver_cli', $categoryname);

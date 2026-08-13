@@ -16,7 +16,9 @@
 
 namespace tool_course_archiver_cli;
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'testable_course.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . DIRECTORY_SEPARATOR . 'testable_course.php');
 
 /**
  * Unit tests for course archiver delete behaviour.
@@ -26,50 +28,75 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'testable_course.php';
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class course_test extends \advanced_testcase {
+    /**
+     * @var \stdClass the course object to be archived.
+     */
     protected \stdClass $course;
 
+    /**
+     * Set up the test environment.
+     */
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
         $this->course = $this->getDataGenerator()->create_course(['shortname' => 'ARCHIVE_TEST_COURSE']);
     }
 
+    /**
+     * Test archiving a course with delete, non-interactive and quiet modes.
+     * @covers \tool_course_archiver_cli\course::archive
+     */
     public function test_archive_with_delete_noninteractive_quiet_archivepath_command(): void {
         global $CFG;
 
         $options = new options();
-        $options->setDelete(true)
-                ->setNonInteractive(true)
-                ->setQuiet(true)
-                ->setArchivePath($CFG->dataroot . '/course_archiver_test/');
+        $options->set_delete(true)
+            ->set_non_interactive(true)
+            ->set_quiet(true)
+            ->set_archive_path($CFG->dataroot . '/course_archiver_test/');
 
         $testablecourse = new testable_course($this->course->id, $options);
         $testablecourse->archive();
 
         $this->assertSame(
             [
-                ['backup.php', "--courseid={$this->course->id} --destination={$options->getArchivePath()}", 'backupdfailed'],
-                ['delete_course.php', "--courseid={$this->course->id} --disablerecyclebin --non-interactive", 'deletefailed'],
+                [
+                    'backup.php',
+                    "--courseid={$this->course->id} --destination={$CFG->dataroot}/course_archiver_test/",
+                    'backupdfailed',
+                ],
+                [
+                    'delete_course.php',
+                    "--courseid={$this->course->id} --disablerecyclebin --non-interactive",
+                    'deletefailed',
+                ],
             ],
-            $testablecourse->getExecCalls()
+            $testablecourse->get_exec_calls()
         );
     }
 
+    /**
+     * Test archiving a course without delete, non-interactive and quiet modes.
+     * @covers \tool_course_archiver_cli\course::archive
+     */
     public function test_archive_with_noninteractive_quiet_archivepath_command(): void {
         global $CFG;
 
         $options = new options();
-        $options->setNonInteractive(true)->setQuiet(true);
+        $options->set_non_interactive(true)->set_quiet(true)->set_archive_path($CFG->dataroot . '/course_archiver_test/');
 
         $testablecourse = new testable_course($this->course->id, $options);
         $testablecourse->archive();
 
         $this->assertSame(
             [
-                ['backup.php', "--courseid={$this->course->id} --destination={$CFG->dataroot}/course_archiver/", 'backupdfailed'],
+                [
+                    'backup.php',
+                    "--courseid={$this->course->id} --destination={$CFG->dataroot}/course_archiver_test/",
+                    'backupdfailed',
+                ],
             ],
-            $testablecourse->getExecCalls()
+            $testablecourse->get_exec_calls()
         );
     }
-
 }

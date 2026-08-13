@@ -20,7 +20,7 @@ namespace tool_course_archiver_cli\privacy;
  * Course archiver this file handle privacy provider.
  *
  * @package          tool_course_archiver_cli
- * @author           Stephan Robotta <stephan.robotta@bfh.ch>
+ * @copyright        2026 Stephan Robotta <stephan.robotta@bfh.ch>
  * @license          http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {

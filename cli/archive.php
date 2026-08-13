@@ -21,9 +21,6 @@
  * @copyright  2026 Stephan Robotta <stephan.robotta@bfh.ch>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-use tool_brickfield\local\areas\mod_choice\option;
-
 define('CLI_SCRIPT', true);
 
 require(__DIR__ . '/../../../../config.php');
@@ -55,7 +52,7 @@ Export all course within a category and its subcategories, and delete the course
 EOF;
 
 // Now get cli options.
-list($options, $unrecognized) = cli_get_params(
+[$options, $unrecognized] = cli_get_params(
     [
         'target' => false,
         'help' => false,
@@ -73,7 +70,7 @@ list($options, $unrecognized) = cli_get_params(
         'q' => 'quiet',
         'r' => 'recursive',
         't' => 'target',
-        'x' => 'course'
+        'x' => 'course',
     ]
 );
 
@@ -86,14 +83,14 @@ if ($options['help']) {
     cli_error($usage, 0);
 }
 
-$optionsObj = new \tool_course_archiver_cli\options();
+$optionsobj = new \tool_course_archiver_cli\options();
 // Target dir set by option or default.
 if ($options['target']) {
-    $optionsObj->setArchivePath(rtrim($options['target'], '/') . '/');
+    $optionsobj->set_archive_path(rtrim($options['target'], '/') . '/');
 }
 // Ensure target directory exists.
-if (!check_dir_exists($optionsObj->getArchivePath())) {
-    cli_error(get_string('targetnotfound', 'tool_course_archiver_cli', ['target' => $optionsObj->getArchivePath()]));
+if (!check_dir_exists($optionsobj->get_archive_path())) {
+    cli_error(get_string('targetnotfound', 'tool_course_archiver_cli', ['target' => $optionsobj->get_archive_path()]));
 }
 
 if (empty($options['category']) && empty($options['course'])) {
@@ -104,25 +101,25 @@ if (!empty($options['category']) && !empty($options['course'])) {
 }
 // Other options about delete, interactive and output.
 if ($options['delete']) {
-    $optionsObj->setDelete(true);
+    $optionsobj->set_delete(true);
 }
 if ($options['non-interactive']) {
-    $optionsObj->setNonInteractive(true);
+    $optionsobj->set_non_interactive(true);
 }
 if ($options['quiet']) {
-    $optionsObj->setQuiet(true);
+    $optionsobj->set_quiet(true);
 }
 
 if ($options['category']) {
     $archiver = new \tool_course_archiver_cli\category(
         id: (int)$options['category'],
-        options: $optionsObj,
+        options: $optionsobj,
         recursive: $options['recursive']
     );
 } else {
     $archiver = new \tool_course_archiver_cli\course(
         id: (int)$options['course'],
-        options: $optionsObj
+        options: $optionsobj
     );
 }
 
