@@ -55,6 +55,10 @@ The following options can be set:
 
 ## Releases
 
+### 5.3-r1
+
+* Support for Moodle 5.3
+
 ### 5.2-r2
 
 * Rename the plugin from tool_course_archiver to tool_course_archiver_cli.
